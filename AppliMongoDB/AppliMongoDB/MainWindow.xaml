@@ -17,14 +17,25 @@
                         <ColumnDefinition Width="35*"/>
                         <ColumnDefinition Width="136*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="question_431" Content="question 4.3.1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="253" Height="22" Margin="34.2,52,0,0" Grid.Column="1"/>
-                    <TextBox x:Name="titleBox" Text="title" Margin="34.2,26,120.8,243.4" Grid.Column="1"/>
-                    <Label x:Name="labelVueArticle" Content="Label" Grid.Column="1" HorizontalAlignment="Left" Margin="34.2,79,0,0" VerticalAlignment="Top" Width="253"/>
+                    <Button x:Name="question_431" Content="question 4.3.1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="253" Height="22" Margin="10,55,0,0" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="titleBox" Text="title" Margin="10,29,250,240" Grid.ColumnSpan="2"/>
                     <ListBox x:Name="listBoxVueArticle" HorizontalAlignment="Left" Height="170" Margin="10,110,0,0" VerticalAlignment="Top" Width="493" Grid.ColumnSpan="2"/>
+                    <Button x:Name="open_browser" Content="open browser" HorizontalAlignment="Left" VerticalAlignment="Top" Width="106" Height="22" Margin="246,55,0,0" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="vue Auteur">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35*"/>
+                        <ColumnDefinition Width="136*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="question_authors" Content="find author business" HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" Height="22" Margin="10,55,0,0" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="authors_name" Text="author name" Margin="10,29,344,240" Grid.ColumnSpan="2"/>
+                    <ListBox x:Name="authors_listview" HorizontalAlignment="Left" Height="170" Margin="10,110,0,0" VerticalAlignment="Top" Width="493" Grid.ColumnSpan="2"/>
+                    <Button x:Name="show_co_authors" Content="show co authors" HorizontalAlignment="Left" VerticalAlignment="Top" Width="106" Height="22" Margin="101,55,0,0" Grid.Column="1"/>
+                    <ComboBox x:Name="years_combo_box" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Width="158" Grid.ColumnSpan="2"/>
+                    <Button x:Name="show_stats" Content="show stats" HorizontalAlignment="Left" VerticalAlignment="Top" Width="106" Height="22" Margin="246,55,0,0" Grid.Column="1"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Vue Publieur">
                 <Grid Background="#FFE5E5E5"/>

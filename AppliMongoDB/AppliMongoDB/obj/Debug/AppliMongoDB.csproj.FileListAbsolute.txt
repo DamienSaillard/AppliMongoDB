@@ -17,3 +17,24 @@ c:\users\damien\documents\visual studio 2015\Projects\AppliMongoDB\AppliMongoDB\
 c:\users\damien\documents\visual studio 2015\Projects\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.csproj.GenerateResource.Cache
 c:\users\damien\documents\visual studio 2015\Projects\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.exe
 c:\users\damien\documents\visual studio 2015\Projects\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.pdb
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\AppliMongoDB.exe.config
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\AppliMongoDB.exe
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\AppliMongoDB.pdb
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\MongoDB.Bson.dll
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\MongoDB.Driver.Core.dll
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\MongoDB.Driver.dll
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\MongoDB.Bson.xml
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\bin\Debug\MongoDB.Driver.xml
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.csprojResolveAssemblyReference.cache
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\MainWindow.g.cs
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\App.g.cs
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB_MarkupCompile.cache
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB_MarkupCompile.lref
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\MainWindow.baml
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.g.resources
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.Properties.Resources.resources
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.csproj.GenerateResource.Cache
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.exe
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\AppliMongoDB.pdb
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\GraphPage.g.cs
+C:\Users\JoshuaBWT\Desktop\git\AppliMongoDB\AppliMongoDB\AppliMongoDB\obj\Debug\GraphPage.baml

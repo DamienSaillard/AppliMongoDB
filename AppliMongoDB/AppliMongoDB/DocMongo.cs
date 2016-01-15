@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +8,26 @@ using System.Threading.Tasks;
 
 namespace AppliMongoDB
 {
+    [BsonIgnoreExtraElements]
     public class Pages
     {
         public Pages()
         {
         }
 
+        //[BsonIgnore]
         public BsonInt32 start
         {
             get; set;
         }
+        //[BsonIgnore]
         public BsonInt32 end
         {
             get; set;
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class DocMongo
     {
         /*public string id;
@@ -50,6 +55,7 @@ namespace AppliMongoDB
         {
             get; set;
         }
+        //[BsonIgnore]
         public object pages
         {
             get; set;
