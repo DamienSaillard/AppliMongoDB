@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Windows;
 
 namespace AppliMongoDB
 {
@@ -53,8 +54,15 @@ namespace AppliMongoDB
 		}
 
 		public IMongoDatabase GetDatabase(string db = defaultDB) {
-			MongoClient client = Connexion();
-			return GetDatabase(client, db);
+            try {
+                MongoClient client = Connexion();
+                return GetDatabase(client, db);
+            }
+            catch(MongoException ex)
+            {
+                MessageBox.Show(ex.Message);
+                return null;
+            }
 		}
 
 		public IMongoDatabase GetDatabase(Dictionary<string, int> listAdressPort, string db = defaultDB) {
@@ -102,118 +110,215 @@ namespace AppliMongoDB
 
         #region Finds
         public List<DocMongo> FindArticles(string title = "") {
-            IMongoCollection<DocMongo> collection = GetDatabase(defaultDB).GetCollection<DocMongo>("publis2");
-            if (title != "")
-                return collection.Find(Builders<DocMongo>.Filter.Regex("title", title)).ToList();
-            else
-                return collection.Find(new BsonDocument()).ToList();
-
+            var db = GetDatabase(defaultDB);
+            if (db != null)
+            {
+                IMongoCollection<DocMongo> collection = db.GetCollection<DocMongo>("publis2");
+                if (title != "")
+                    return collection.Find(Builders<DocMongo>.Filter.Regex("title", title)).ToList();
+                else
+                    return collection.Find(new BsonDocument()).ToList();
+            }
+            return new List<DocMongo>();
         }
 
         public List<DocMongo> FindArticlesByAuthor(string author = "")
         {
-            IMongoCollection<DocMongo> collection = GetDatabase(defaultDB).GetCollection<DocMongo>("publis2");
-            if (author != "")
-                return collection.Find(Builders<DocMongo>.Filter.Regex("authors", author)).ToList();
-            else
-                return collection.Find(new BsonDocument()).ToList();
+            var db = GetDatabase(defaultDB);
+            if (db != null)
+            {
+                IMongoCollection<DocMongo> collection = db.GetCollection<DocMongo>("publis2");
+                if (author != "")
+                    return collection.Find(Builders<DocMongo>.Filter.Regex("authors", author)).ToList();
+                else
+                    return collection.Find(new BsonDocument()).ToList();
+            }
+            return new List<DocMongo>();
+
+        }
+
+        public List<DocMongo> FindArticlesByPublisher(string publisher = "")
+        {
+            var db = GetDatabase(defaultDB);
+            if (db != null)
+            {
+                IMongoCollection<DocMongo> collection = db.GetCollection<DocMongo>("publis2");
+                if (publisher != "")
+                    return collection.Find(Builders<DocMongo>.Filter.Regex("publisher", publisher)).ToList();
+                else
+                    return collection.Find(new BsonDocument()).ToList();
+            }
+            return new List<DocMongo>();
 
         }
 
         public List<BsonDocument> StatsByAuthor(string author = "")
         {
-            List<DocMongo> listDoc = FindArticlesByAuthor(author);
-            IMongoCollection<BsonDocument> collection = GetDatabase(defaultDB).GetCollection<BsonDocument>("publis2");
-            List<BsonDocument> stats = new List<BsonDocument>();
-            List<BsonDocument> result = collection.Aggregate()
-                .Unwind("authors")
-                .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
-                .Group(new BsonDocument { { "_id", "$type" }, { "count", new BsonDocument("$sum", 1) } }).ToList();
-            foreach(BsonDocument doc in result)
+            var db = GetDatabase(defaultDB);
+            if (db != null)
             {
-                doc.Add("type", "type");
-            }
-            stats.AddRange(result);
-            result = collection.Aggregate()
-                .Unwind("authors")
-                .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
-                .Group(new BsonDocument { { "_id", "$year" },
+                IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>("publis2");
+                List<DocMongo> listDoc = FindArticlesByAuthor(author);
+                List<BsonDocument> stats = new List<BsonDocument>();
+                List<BsonDocument> result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
+                    .Group(new BsonDocument { { "_id", "$type" }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "type");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
+                    .Group(new BsonDocument { { "_id", "$year" },
                     { "count", new BsonDocument("$sum", 1) },
                     { "cites", new BsonDocument("$sum", "cites.length") }}).ToList();
-            foreach (BsonDocument doc in result)
-            {
-                doc.Add("type", "year");
-            }
-            stats.AddRange(result);
-            result = collection.Aggregate()
-                .Unwind("authors")
-                .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
-                .Group(new BsonDocument { { "_id", "$publisher" }, { "count", new BsonDocument("$sum", 1) },
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "year");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
+                    .Group(new BsonDocument { { "_id", "$publisher" }, { "count", new BsonDocument("$sum", 1) },
                 { "cites", new BsonDocument("$sum", "cites.length") } }).ToList();
-            foreach (BsonDocument doc in result)
-            {
-                doc.Add("type", "publisher");
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "publisher");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
+                    .Unwind("authors")
+                    .Group(new BsonDocument { { "_id", "$authors" } }).ToList();
+                BsonDocument doc2 = new BsonDocument();
+
+                doc2.Add("_id", "null");
+                doc2.Add("count", result.Select(x => x["_id"]).Distinct().ToArray().Length);
+                doc2.Add("type", "coauthors");
+                stats.Add(doc2);
+                return stats;
             }
-            stats.AddRange(result);
-            result = collection.Aggregate()
-                .Match(Builders<BsonDocument>.Filter.Regex("authors", author))
-                .Unwind("authors")
-                .Group(new BsonDocument { { "_id", "$authors" } }).ToList();
-            BsonDocument doc2 = new BsonDocument();
-            
-            doc2.Add("_id", "null");
-            doc2.Add("count", result.Select(x => x["_id"]).Distinct().ToArray().Length);
-            doc2.Add("type", "coauthors");
-            stats.Add(doc2);
-            return stats;
+            return new List<BsonDocument>();
+        }
+
+        public List<BsonDocument> StatsByPublisher(string publisher = "")
+        {
+            var db = GetDatabase(defaultDB);
+            if (db != null)
+            {
+                IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>("publis2");
+                List<DocMongo> listDoc = FindArticlesByPublisher(publisher);
+                List<BsonDocument> stats = new List<BsonDocument>();
+                List<BsonDocument> result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("publisher", publisher))
+                    .Group(new BsonDocument { { "_id", "$type" }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "type");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("publisher", publisher))
+                    .Group(new BsonDocument { { "_id", "$year" },
+                    { "count", new BsonDocument("$sum", 1) },
+                    { "cites", new BsonDocument("$sum", "cites.length") }}).ToList();
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "year");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Unwind("authors")
+                    .Match(Builders<BsonDocument>.Filter.Regex("publisher", publisher))
+                    .Group(new BsonDocument { { "_id", "$publisher" }, { "count", new BsonDocument("$sum", 1) },
+                { "cites", new BsonDocument("$sum", "cites.length") } }).ToList();
+                foreach (BsonDocument doc in result)
+                {
+                    doc.Add("type", "publisher");
+                }
+                stats.AddRange(result);
+                result = collection.Aggregate()
+                    .Match(Builders<BsonDocument>.Filter.Regex("publisher", publisher))
+                    .Unwind("authors")
+                    .Group(new BsonDocument { { "_id", "$authors" } }).ToList();
+                BsonDocument doc2 = new BsonDocument();
+
+                doc2.Add("_id", "null");
+                doc2.Add("count", result.Select(x => x["_id"]).Distinct().ToArray().Length);
+                doc2.Add("type", "coauthors");
+                stats.Add(doc2);
+                return stats;
+            }
+            return new List<BsonDocument>();
         }
 
         public DocMongo FindById(string id = "")
         {
-            IMongoCollection<DocMongo> collection = GetDatabase(defaultDB).GetCollection<DocMongo>("publis2");
-            FilterDefinition<DocMongo> filter = null;
-            if (id != "")
-                filter = (Builders<DocMongo>.Filter.Eq("_id", id));
-            else
-                filter = new BsonDocument();
-            var result = collection.Find(filter).ToList();
-            if(result != null && result.Count > 0)
-                return result.First();
-            return null;
+            var db = GetDatabase(defaultDB);
+            if (db != null)
+            {
+                IMongoCollection<DocMongo> collection = db.GetCollection<DocMongo>("publis2");
+                FilterDefinition<DocMongo> filter = null;
+                if (id != "")
+                    filter = (Builders<DocMongo>.Filter.Eq("_id", id));
+                else
+                    filter = new BsonDocument();
+                var result = collection.Find(filter).ToList();
+                if (result != null && result.Count > 0)
+                    return result.First();
+                return null;
+            }
+            return new DocMongo();
 
         }
 
         public Dictionary<string, string> FindAllTitlesById()
         {
-            Dictionary<string, string> dico = new Dictionary<string, string>();
-            IMongoCollection<BsonDocument> collection = GetDatabase(defaultDB).GetCollection<BsonDocument>("publis2");
-            FilterDefinition<BsonDocument> filter = new BsonDocument();
-            var result = collection.Find(filter).ToList();
-            for(int i = 0; i < result.Count; i++)
+            var db = GetDatabase(defaultDB);
+            if (db != null)
             {
-                dico.Add(result[i]["_id"].ToString(), result[i]["title"].ToString());
+                IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>("publis2");
+                Dictionary<string, string> dico = new Dictionary<string, string>();
+                FilterDefinition<BsonDocument> filter = new BsonDocument();
+                var result = collection.Find(filter).ToList();
+                for (int i = 0; i < result.Count; i++)
+                {
+                    dico.Add(result[i]["_id"].ToString(), result[i]["title"].ToString());
+                }
+                return dico;
             }
-            return dico;
+            return new Dictionary<string, string>();
         }
         #endregion
 
 
         #region MapReduce
         public Dictionary<int, int> StatYearsMapReduce(string auteur) {
-            Dictionary<int, int> statYears = new Dictionary<int, int>();
-            BsonJavaScript mapFunction = @"function () { emit(this.year , 1);};";
-            BsonJavaScript reduceFunction = @"function (key, values) { return Array.sum(values); }";
-            var results = GetDatabase()
-                .GetCollection<BsonDocument>("publis2")
-                .MapReduce<BsonDocument>(mapFunction, reduceFunction);
-
-            foreach (BsonDocument result in results.ToList())
+            var db = GetDatabase(defaultDB);
+            if (db != null)
             {
-                int key = result["_id"].ToInt32();
-                int value = result["value"].ToInt32();
-                statYears.Add(key, value);
+                Dictionary<int, int> statYears = new Dictionary<int, int>();
+                BsonJavaScript mapFunction = @"function () { emit(this.year , 1);};";
+                BsonJavaScript reduceFunction = @"function (key, values) { return Array.sum(values); }";
+                var results = db
+                    .GetCollection<BsonDocument>("publis2")
+                    .MapReduce<BsonDocument>(mapFunction, reduceFunction);
+
+                foreach (BsonDocument result in results.ToList())
+                {
+                    int key = result["_id"].ToInt32();
+                    int value = result["value"].ToInt32();
+                    statYears.Add(key, value);
+                }
+                return statYears;
             }
-            return statYears;
+            return new Dictionary<int, int>();
 		}
 		#endregion
 	}

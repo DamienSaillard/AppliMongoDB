@@ -27,6 +27,7 @@ namespace AppliMongoDB
         MyMongoClient client;
         List<DocMongo> listDoc;
         List<DocMongo> listAuth;
+        List<DocMongo> listPub;
 
         public MainWindow()
         {
@@ -36,12 +37,16 @@ namespace AppliMongoDB
 
             listDoc = new List<DocMongo>();
             listAuth = new List<DocMongo>();
+            listPub = new List<DocMongo>();
 
             question_431.Click += Question_1_Click;
             open_browser.Click += Open_browser_Click;
             question_authors.Click += Question_authors_Click;
             show_stats.Click += Show_stats_Click;
+            question_publisher.Click += Question_publisher_Click;
+            show_publisher_stats.Click += Show_publisher_stats_Click;
         }
+       
 
         #region  articles
 
@@ -67,43 +72,49 @@ namespace AppliMongoDB
 
         private void Question_1_Click(object sender, RoutedEventArgs e)
         {
-            string title = titleBox.Text;
-            
-            listDoc = client.FindArticles(title);
-            MessageBox.Show("Successfully find " + listDoc.Count + " articles");
-
-            List<string> cites = new List<string>();
-            for (int i = 0; i < listDoc.Count; i++)
+            try
             {
-                if (listDoc[i].cites != null)
-                    for (int j = 0; j < listDoc[i].cites.Count; j++)
-                    {
-                        string fgbhsghlisehgmroseighielshgsielg = listDoc[i].title;
-                        cites.Add(listDoc[i].cites[j]);
-                       // listBoxVueArticle.Items.Add(list[i].cites[j]);
-                    }
-            }
+                string title = titleBox.Text;
 
-            if(cites.Count <= 0)
-            {
-                MessageBox.Show("No citation for the articles");
-            }
+                listDoc = client.FindArticles(title);
+                MessageBox.Show("Successfully find " + listDoc.Count + " articles");
 
-            int count = 0;
-            //var dico = client.FindAllTitlesById();
-            for (int i = 0; i < cites.Count; i++)
-            {
-               
-                DocMongo curDoc = client.FindById(cites[i]);
-                if (curDoc != null && curDoc.title != null)
+                List<string> cites = new List<string>();
+                for (int i = 0; i < listDoc.Count; i++)
                 {
-                    count++;
-                    listBoxVueArticle.Items.Add(cites[i] + " : " + curDoc.title + "(" + ((curDoc.authors != null)? curDoc.authors[0] : "no authors")+ ")");
-                    if (count == 10)
-                        break;
+                    if (listDoc[i].cites != null)
+                        for (int j = 0; j < listDoc[i].cites.Count; j++)
+                        {
+                            string fgbhsghlisehgmroseighielshgsielg = listDoc[i].title;
+                            cites.Add(listDoc[i].cites[j]);
+                            // listBoxVueArticle.Items.Add(list[i].cites[j]);
+                        }
+                }
+
+                if (cites.Count <= 0)
+                {
+                    MessageBox.Show("No citation for the articles");
+                }
+
+                int count = 0;
+                //var dico = client.FindAllTitlesById();
+                for (int i = 0; i < cites.Count; i++)
+                {
+
+                    DocMongo curDoc = client.FindById(cites[i]);
+                    if (curDoc != null && curDoc.title != null)
+                    {
+                        count++;
+                        listBoxVueArticle.Items.Add(cites[i] + " : " + curDoc.title + "(" + ((curDoc.authors != null) ? curDoc.authors[0] : "no authors") + ")");
+                        if (count == 10)
+                            break;
+                    }
                 }
             }
-
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         #endregion
 
@@ -111,47 +122,65 @@ namespace AppliMongoDB
 
         private void Question_authors_Click(object sender, RoutedEventArgs e)
         {
-            string authorName = authors_name.Text;
-            listDoc = client.FindArticlesByAuthor(authorName);
-            MessageBox.Show("Successfully find " + listDoc.Count + " articles");
-
-            int[] years = listDoc
-                .Where(x => x.year != 0)
-                .Select(x => x.year)
-                .Distinct()
-                .ToArray();
-            for (int i = 0; i < years.Length; i++)
-                years_combo_box.Items.Add(years[i]);
-            years_combo_box.SelectionChanged += Years_combo_box_SelectionChanged;
-
-            for (int i = 0; i < listDoc.Count; i++)
+            try
             {
-                string line = formatItem(listDoc[i]);
-                authors_listview.Items.Add(line);
+                string authorName = authors_name.Text;
+                listAuth = client.FindArticlesByAuthor(authorName);
+                MessageBox.Show("Successfully find " + listAuth.Count + " articles");
+
+                int[] years = listAuth
+                    .Where(x => x.year != 0)
+                    .Select(x => x.year)
+                    .Distinct()
+                    .ToArray();
+                for (int i = 0; i < years.Length; i++)
+                    years_combo_box.Items.Add(years[i]);
+                years_combo_box.SelectionChanged += Years_combo_box_SelectionChanged;
+                authors_listview.Items.Clear();
+                for (int i = 0; i < listAuth.Count; i++)
+                {
+                    string line = formatItem(listAuth[i]);
+                    authors_listview.Items.Add(line);
+                }
+                show_co_authors.Click += Show_co_authors_Click;
             }
-            show_co_authors.Click += Show_co_authors_Click;
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void Show_co_authors_Click(object sender, RoutedEventArgs e)
         {
-            authors_listview.Items.Clear();
-            List<string> coAuthors = new List<string>();
-
-            for(int i = 0; i < listDoc.Count; i++)
+            try
             {
-                for(int j = 0; j < listDoc[i].authors.Count; j++)
+                authors_listview.Items.Clear();
+                Dictionary<string, int> coAuthors = new Dictionary<string, int>();
+
+                for (int i = 0; i < listAuth.Count; i++)
                 {
-                    if(coAuthors.IndexOf(listDoc[i].authors[j]) == -1)
+                    for (int j = 0; j < listAuth[i].authors.Count; j++)
                     {
-                        coAuthors.Add(listDoc[i].authors[j]);
+                        if (!coAuthors.ContainsKey(listAuth[i].authors[j]))
+                        {
+                            coAuthors.Add(listAuth[i].authors[j], 1);
+                        }
+                        else
+                        {
+                            coAuthors[listAuth[i].authors[j]]++;
+                        }
                     }
                 }
+                coAuthors.OrderByDescending(x => x.Value);
+                authors_listview.Items.Clear();
+                foreach(var item in coAuthors)
+                {
+                    authors_listview.Items.Add(item.Key + ": " + item.Value);
+                }
             }
-            coAuthors.Sort();
-            authors_listview.Items.Clear();
-            for (int i = 0; i < coAuthors.Count; i++)
+            catch (Exception ex)
             {
-                authors_listview.Items.Add(coAuthors[i]);
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -180,23 +209,143 @@ namespace AppliMongoDB
             if(a != 0)
             {
                 authors_listview.Items.Clear();
-                for(int i = 0; i < listDoc.Count; i++)
+                for(int i = 0; i < listAuth.Count; i++)
                 {
-                    if (listDoc[i].year == a)
+                    if (listAuth[i].year == a)
                         authors_listview.Items.Add(formatItem(listDoc[i]));
                 }
             }
         }
 
 
-        private void Show_stats_Click(object sender, RoutedEventArgs e)
+        private async void Show_stats_Click(object sender, RoutedEventArgs e)
         {
-            List<BsonDocument> stats = client.StatsByAuthor(authors_name.Text);
+            List<BsonDocument> stats = new List<BsonDocument>();
+            try
+            {
+                string text = publisher_name.Text;
+                await Task.Run(() =>
+                {
+                    stats = client.StatsByPublisher(text);
 
-            new GraphPage(stats).Show();
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                new GraphPage(stats).Show();
+            }
+        }
 
-            //authors_listview.Items.Clear();
-            
+        #endregion
+
+        #region publishers
+
+        private void Question_publisher_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string authorName = publisher_name.Text;
+                listPub = client.FindArticlesByPublisher(authorName);
+                MessageBox.Show("Successfully find " + listPub.Count + " articles");
+
+                int[] years = listPub
+                    .Where(x => x.year != 0)
+                    .Select(x => x.year)
+                    .Distinct()
+                    .ToArray();
+                for (int i = 0; i < years.Length; i++)
+                    years_box_publisher_combo.Items.Add(years[i]);
+                years_box_publisher_combo.SelectionChanged += Years_box_publisher_combo_SelectionChanged;
+
+                publisher_listview.Items.Clear();
+                for (int i = 0; i < listPub.Count; i++)
+                {
+                    string line = formatItem(listPub[i]);
+                    publisher_listview.Items.Add(line);
+                }
+                show_publisher_authors.Click += Show_publisher_authors_Click;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Show_publisher_authors_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                publisher_listview.Items.Clear();
+                Dictionary<string, int> coAuthors = new Dictionary<string, int>();
+
+                for (int i = 0; i < listPub.Count; i++)
+                {
+                    for (int j = 0; j < listPub[i].authors.Count; j++)
+                    {
+                        if (!coAuthors.ContainsKey(listPub[i].authors[j]))
+                        {
+                            coAuthors.Add(listPub[i].authors[j], 1);
+                        }
+                        else
+                        {
+                            coAuthors[listPub[i].authors[j]]++;
+                        }
+                    }
+                }
+                coAuthors.OrderByDescending(x => x.Value);
+                publisher_listview.Items.Clear();
+                foreach (var item in coAuthors)
+                {
+                    publisher_listview.Items.Add(item.Key + ": " + item.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Years_box_publisher_combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = (ComboBox)sender;
+            int a = 0;
+            int.TryParse(cb.SelectedValue.ToString(), out a);
+            if (a != 0)
+            {
+                publisher_listview.Items.Clear();
+                for (int i = 0; i < listPub.Count; i++)
+                {
+                    if (listPub[i].year == a)
+                        publisher_listview.Items.Add(formatItem(listPub[i]));
+                }
+            }
+        }
+
+
+        private async void Show_publisher_stats_Click(object sender, RoutedEventArgs e)
+        {
+            List<BsonDocument> stats = new List<BsonDocument>();
+            try
+            {
+                string text = publisher_name.Text;
+                await Task.Run(() =>
+                {
+                    stats = client.StatsByPublisher(text);
+                    
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                new GraphPage(stats).Show();
+            }
         }
 
         #endregion

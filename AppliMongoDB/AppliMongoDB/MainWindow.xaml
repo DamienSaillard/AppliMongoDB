@@ -38,10 +38,18 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Vue Publieur">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
-            <TabItem Header="vue Journal">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35*"/>
+                        <ColumnDefinition Width="136*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="question_publisher" Content="find publisher business" HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" Height="22" Margin="10,55,0,0" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="publisher_name" Text="publisher name" Margin="10,29,344,240" Grid.ColumnSpan="2"/>
+                    <ListBox x:Name="publisher_listview" HorizontalAlignment="Left" Height="170" Margin="10,110,0,0" VerticalAlignment="Top" Width="493" Grid.ColumnSpan="2"/>
+                    <Button x:Name="show_publisher_authors" Content="show authors" HorizontalAlignment="Left" VerticalAlignment="Top" Width="106" Height="22" Margin="101,55,0,0" Grid.Column="1"/>
+                    <ComboBox x:Name="years_box_publisher_combo" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Width="158" Grid.ColumnSpan="2"/>
+                    <Button x:Name="show_publisher_stats" Content="show stats" HorizontalAlignment="Left" VerticalAlignment="Top" Width="106" Height="22" Margin="246,55,0,0" Grid.Column="1"/>
+                </Grid>
             </TabItem>
         </TabControl>
     </StackPanel>
